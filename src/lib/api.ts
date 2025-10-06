@@ -1,9 +1,37 @@
 import { format, parseISO, addMinutes, isAfter, differenceInMinutes } from 'date-fns';
 
-// detect environment - use local server if running locally, otherwise use relative paths
-const API_BASE = typeof window !== 'undefined' && window.location.hostname === 'localhost' 
-  ? 'http://localhost:3001/api' 
-  : '/api';
+// use environment variable or fallback
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
+
+// retry configuration
+const MAX_RETRIES = 3;
+const RETRY_DELAYS = [200, 400, 800]; // exponential backoff
+
+// helper function for retries
+async function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetry(url: string, options: RequestInit, retries: number = MAX_RETRIES): Promise<Response> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const response = await fetch(url, options);
+      return response;
+    } catch (error) {
+      const isLastAttempt = attempt === retries;
+      const isNetworkError = error instanceof TypeError && error.message.includes('fetch');
+      
+      if (isLastAttempt || !isNetworkError) {
+        throw error;
+      }
+      
+      const delayMs = RETRY_DELAYS[attempt] || RETRY_DELAYS[RETRY_DELAYS.length - 1];
+      await delay(delayMs);
+    }
+  }
+  
+  throw new Error('Max retries exceeded');
+}
 
 export interface Appointment {
   id: string;
@@ -11,7 +39,7 @@ export interface Appointment {
   email: string;
   start: string;
   end: string;
-  status: 'available' | 'booked';
+  status: 'AVAILABLE' | 'BOOKED';
   createdAt: string;
 }
 
@@ -27,7 +55,7 @@ export interface ApiError {
 
 export async function getAppointments(dateStr: string): Promise<Appointment[]> {
   try {
-    const response = await fetch(`${API_BASE}/appointments?date=${dateStr}`, {
+    const response = await fetchWithRetry(`${API_BASE}/appointments?date=${dateStr}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -54,7 +82,7 @@ export async function getAppointments(dateStr: string): Promise<Appointment[]> {
 
 export async function createAppointment(data: CreateAppointmentRequest): Promise<Appointment> {
   try {
-    const response = await fetch(`${API_BASE}/appointments`, {
+    const response = await fetchWithRetry(`${API_BASE}/appointments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -82,7 +110,7 @@ export async function createAppointment(data: CreateAppointmentRequest): Promise
 
 export async function deleteAppointment(id: string): Promise<{ success: boolean }> {
   try {
-    const response = await fetch(`${API_BASE}/appointments/${id}`, {
+    const response = await fetchWithRetry(`${API_BASE}/appointments/${id}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
     });

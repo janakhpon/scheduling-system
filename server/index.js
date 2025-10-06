@@ -45,8 +45,8 @@ const appointments = [];
 
 // Simple status constants - only available or booked
 const SLOT_STATUS = {
-  AVAILABLE: "available",
-  BOOKED: "booked",
+  AVAILABLE: "AVAILABLE",
+  BOOKED: "BOOKED",
 };
 
 // Zod schemas for validation

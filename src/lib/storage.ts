@@ -7,7 +7,7 @@ export interface Appointment {
   email: string;
   start: string;
   end: string;
-  status: 'available' | 'booked';
+  status: 'AVAILABLE' | 'BOOKED';
   createdAt: string;
 }
 
@@ -24,7 +24,7 @@ function readAppointments(): Appointment[] {
       return JSON.parse(data);
     }
   } catch (error) {
-    console.error('file read failed, using memory storage:', error);
+    // fallback to memory storage
   }
   return memoryStorage;
 }
@@ -38,7 +38,7 @@ function writeAppointments(appointments: Appointment[]): void {
     }
     fs.writeFileSync(DATA_FILE, JSON.stringify(appointments, null, 2));
   } catch (error) {
-    console.error('file write failed, using memory storage:', error);
+    // fallback to memory storage
     memoryStorage = appointments;
   }
 }

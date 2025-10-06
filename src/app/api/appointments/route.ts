@@ -26,7 +26,7 @@ function hasOverlap(startISO: string): boolean {
   const startTime = parseISO(startISO);
   const endTime = addMinutes(startTime, SLOT_MINUTES);
   return appointments.some((a) => {
-    if (a.status !== 'booked') return false;
+    if (a.status !== 'BOOKED') return false;
     const aStart = parseISO(a.start);
     const aEnd = parseISO(a.end);
     return Math.max(aStart.getTime(), startTime.getTime()) < Math.min(aEnd.getTime(), endTime.getTime());
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     const appointments = getAppointments();
     const dayAppointments = appointments.filter((a) => 
-      a.start.startsWith(date) && a.status === 'booked'
+      a.start.startsWith(date) && a.status === 'BOOKED'
     );
     
     return NextResponse.json(dayAppointments);
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       email,
       start: startDate.toISOString(),
       end: endDate.toISOString(),
-      status: 'booked',
+      status: 'BOOKED',
       createdAt: new Date().toISOString(),
     };
 

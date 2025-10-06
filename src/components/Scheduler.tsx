@@ -67,8 +67,8 @@ function BookingModal({ isOpen, onClose, selectedSlot, onBookingSuccess }: Booki
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto animate-in slide-in-from-bottom-4 duration-300">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
@@ -191,8 +191,8 @@ function CancellationModal({ isOpen, onClose, appointment, onCancellationSuccess
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-auto animate-in slide-in-from-bottom-4 duration-300">
         <div className="p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
@@ -263,7 +263,7 @@ function TimeSlot({ slot, appointment, isBooked, onBook, onCancel }: TimeSlotPro
   };
 
   const getSlotClasses = () => {
-    let baseClasses = "p-4 border rounded-lg text-center cursor-pointer transition-colors min-h-[80px] flex flex-col justify-center";
+    let baseClasses = "p-4 border rounded-lg text-center cursor-pointer transition-all duration-200 min-h-[80px] w-full flex flex-col justify-center";
     
     if (isPast) {
       return `${baseClasses} bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed`;
@@ -272,12 +272,12 @@ function TimeSlot({ slot, appointment, isBooked, onBook, onCancel }: TimeSlotPro
     if (isBooked) {
       // Booked slot - can cancel if within time limit
       return canCancel 
-        ? `${baseClasses} bg-red-100 border-red-300 text-red-700 hover:bg-red-200`
+        ? `${baseClasses} bg-red-100 border-red-300 text-red-700 hover:bg-red-200 hover:shadow-md`
         : `${baseClasses} bg-red-100 border-red-300 text-red-700 cursor-not-allowed`;
     }
     
     // Available slot
-    return `${baseClasses} bg-green-100 border-green-300 text-green-700 hover:bg-green-200`;
+    return `${baseClasses} bg-green-100 border-green-300 text-green-700 hover:bg-green-200 hover:shadow-md`;
   };
 
   const getSlotText = () => {
@@ -300,9 +300,9 @@ function TimeSlot({ slot, appointment, isBooked, onBook, onCancel }: TimeSlotPro
       onClick={handleClick}
       title={getTooltipText()}
     >
-      <div className="font-medium text-base">{formatTime(slot)}</div>
+      <div className="font-medium text-base mb-1">{formatTime(slot)}</div>
       {getSlotText() && (
-        <div className="text-sm mt-1">{getSlotText()}</div>
+        <div className="text-xs leading-tight">{getSlotText()}</div>
       )}
     </div>
   );
@@ -377,67 +377,63 @@ export default function Scheduler() {
         <p className="text-gray-600">Select a date and choose an available time slot to book your appointment.</p>
       </div>
 
-      <div className="mb-6">
-        <label htmlFor="date-picker" className="block text-sm font-medium text-gray-700 mb-2">
+      <div className="mb-6 flex items-center gap-4">
+        <label htmlFor="date-picker" className="block text-sm font-medium text-gray-700">
           Select Date
         </label>
         <input
           type="date"
           id="date-picker"
           value={formatDateForInput(selectedDate)}
-          onChange={(e) => setSelectedDate(new Date(e.target.value))}
-          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => {
+            setSelectedDate(new Date(e.target.value));
+            // auto-close datepicker after selection
+            e.target.blur();
+          }}
+          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
         />
+        <div className="text-sm text-gray-600">
+          {selectedDate.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })} • Operating Hours: 7:00 AM - 7:00 PM
+        </div>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded animate-in slide-in-from-top-2 duration-200">
           {error}
         </div>
       )}
 
       {isLoading ? (
-        <div className="text-center py-8">
+        <div className="text-center py-8 animate-in fade-in duration-300">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <p className="mt-2 text-gray-600">Loading appointments...</p>
         </div>
       ) : (
         <>
-          <div className="mb-6 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="text-lg font-medium text-gray-900">
-                  {selectedDate.toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                </span>
-              </div>
-              <div className="text-sm text-gray-600">
-                Operating Hours: 7:00 AM - 7:00 PM
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            {timeSlots.map((slot) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-6 animate-in fade-in duration-500">
+            {timeSlots.map((slot, index) => {
               const appointment = getAppointmentForSlot(slot);
               const isBooked = !!appointment;
               
               return (
-                <TimeSlot
+                <div
                   key={slot}
-                  slot={slot}
-                  appointment={appointment}
-                  isBooked={isBooked}
-                  onBook={handleBookSlot}
-                  onCancel={handleCancelAppointment}
-                />
+                  className="animate-in slide-in-from-bottom-2 duration-300"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <TimeSlot
+                    slot={slot}
+                    appointment={appointment}
+                    isBooked={isBooked}
+                    onBook={handleBookSlot}
+                    onCancel={handleCancelAppointment}
+                  />
+                </div>
               );
             })}
           </div>
