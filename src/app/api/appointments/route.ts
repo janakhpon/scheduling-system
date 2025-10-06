@@ -57,6 +57,7 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(dayAppointments);
   } catch (error) {
+    console.error('GET appointments error:', error);
     return sendError("server error", 500);
   }
 }
@@ -89,6 +90,7 @@ export async function POST(request: NextRequest) {
     addAppointment(newAppointment);
     return NextResponse.json(newAppointment, { status: 201 });
   } catch (error) {
+    console.error('POST appointments error:', error);
     return sendError("server error", 500);
   }
 }

@@ -1,7 +1,20 @@
 import { format, parseISO, addMinutes, isAfter, differenceInMinutes } from 'date-fns';
 
-// use environment variable or fallback
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
+// prioritize NEXT_PUBLIC_API_URL if valid, fallback to local server for development
+const API_BASE = (() => {
+  // if NEXT_PUBLIC_API_URL is set and valid, use it
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  
+  // fallback to local server for development
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:3001/api';
+  }
+  
+  // fallback to relative paths for production without env var
+  return '/api';
+})();
 
 // retry configuration
 const MAX_RETRIES = 3;

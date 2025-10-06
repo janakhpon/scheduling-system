@@ -11,7 +11,7 @@ export interface Appointment {
   createdAt: string;
 }
 
-// fallback in-memory storage
+// fallback in-memory storage - this will be shared across the same function instance
 let memoryStorage: Appointment[] = [];
 
 // try /tmp first, fallback to memory
@@ -24,7 +24,10 @@ function readAppointments(): Appointment[] {
       return JSON.parse(data);
     }
   } catch (error) {
-    // fallback to memory storage
+    // fallback to memory storage - this is expected on vercel
+    if (process.env.NODE_ENV === 'development') {
+      console.log('using memory storage fallback');
+    }
   }
   return memoryStorage;
 }
