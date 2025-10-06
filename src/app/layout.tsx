@@ -13,8 +13,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Appointment Scheduler",
-  description: "Schedule and manage appointments with ease",
+  title: "Scheduling System",
+  description: "A simple POC scheduling system",
+  keywords: ["scheduling", "appointments", "booking", "POC", "demo"],
+  authors: [{ name: "Scheduling System" }],
+  viewport: "width=device-width, initial-scale=1",
+  robots: "index, follow",
+  openGraph: {
+    title: "Scheduling System",
+    description: "A simple POC scheduling system",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary",
+    title: "Scheduling System",
+    description: "A simple POC scheduling system",
+  },
 };
 
 export default function RootLayout({

@@ -1,6 +1,6 @@
 # Scheduling system
 
-POC scheduling system with dual deployment options.
+A simple POC scheduling system.
 
 ## quick start
 
