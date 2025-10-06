@@ -12,7 +12,10 @@ const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "invalid date format"
 const createAppointmentSchema = z.object({
   name: z.string().min(1).max(100).trim(),
   email: z.string().email().max(100).toLowerCase().trim(),
-  start: z.string().datetime()
+  start: z.string().refine((val) => {
+    const date = parseISO(val);
+    return isValid(date);
+  }, "invalid datetime format")
 });
 
 function isValidSlot(startDate: Date): boolean {
@@ -65,12 +68,19 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('POST request body:', body);
     
     const validation = createAppointmentSchema.safeParse(body);
-    if (!validation.success) return sendError("invalid data", 400);
+    if (!validation.success) {
+      console.log('Validation failed:', validation.error.errors);
+      return sendError(`invalid data: ${validation.error.errors.map(e => e.message).join(', ')}`, 400);
+    }
 
     const { name, email, start } = validation.data;
+    console.log('Parsed data:', { name, email, start });
+    
     const startDate = parseISO(start);
+    console.log('Parsed start date:', startDate);
 
     if (!isAfter(startDate, new Date())) return sendError("cannot book past", 400);
     if (!isValidSlot(startDate)) return sendError("invalid time slot", 400);
