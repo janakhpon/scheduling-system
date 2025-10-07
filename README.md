@@ -2,21 +2,13 @@
 
 A simple POC scheduling system.
 
-## quick start
+## Quick start
 
-### local development
+### Run locally
 
 ```bash
 npm install
-npm run local
+npm run dev || npm run local
 ```
 
-- express server: http://localhost:3001
-- next.js app: http://localhost:3000
-
-### production deploy
-
-```bash
-npm run build
-npm run start
-```
+[Deployment preview](https://scheduling-system-navy.vercel.app/)
