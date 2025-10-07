@@ -26,7 +26,7 @@ interface CancellationModalProps {
   onCancellationSuccess: () => void;
 }
 
-function BookingModal({ isOpen, onClose, selectedSlot, onBookingSuccess }: BookingModalProps) {
+const BookingModal = ({ isOpen, onClose, selectedSlot, onBookingSuccess }: BookingModalProps) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -69,7 +69,6 @@ function BookingModal({ isOpen, onClose, selectedSlot, onBookingSuccess }: Booki
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto animate-in slide-in-from-bottom-4 duration-300">
-        {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -95,7 +94,6 @@ function BookingModal({ isOpen, onClose, selectedSlot, onBookingSuccess }: Booki
           </div>
         </div>
 
-        {/* Content */}
         <div className="px-6 py-4">
         
         <form onSubmit={handleSubmit}>
@@ -169,7 +167,7 @@ function BookingModal({ isOpen, onClose, selectedSlot, onBookingSuccess }: Booki
   );
 }
 
-function CancellationModal({ isOpen, onClose, appointment, onCancellationSuccess }: CancellationModalProps) {
+const CancellationModal = ({ isOpen, onClose, appointment, onCancellationSuccess }: CancellationModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -248,7 +246,7 @@ interface TimeSlotProps {
   onCancel: (appointmentId: string) => void;
 }
 
-function TimeSlot({ slot, appointment, isBooked, onBook, onCancel }: TimeSlotProps) {
+const TimeSlot = ({ slot, appointment, isBooked, onBook, onCancel }: TimeSlotProps) => {
   const isPast = isPastSlot(slot);
   const canCancel = appointment ? canCancelAppointment(appointment.start) : false;
 
@@ -263,20 +261,18 @@ function TimeSlot({ slot, appointment, isBooked, onBook, onCancel }: TimeSlotPro
   };
 
   const getSlotClasses = () => {
-    let baseClasses = "p-4 border rounded-lg text-center cursor-pointer transition-all duration-200 min-h-[80px] w-full flex flex-col justify-center";
+    const baseClasses = "p-4 border rounded-lg text-center cursor-pointer transition-all duration-200 min-h-[80px] w-full flex flex-col justify-center";
     
     if (isPast) {
       return `${baseClasses} bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed`;
     }
     
     if (isBooked) {
-      // Booked slot - can cancel if within time limit
       return canCancel 
         ? `${baseClasses} bg-red-100 border-red-300 text-red-700 hover:bg-red-200 hover:shadow-md`
         : `${baseClasses} bg-red-100 border-red-300 text-red-700 cursor-not-allowed`;
     }
     
-    // Available slot
     return `${baseClasses} bg-green-100 border-green-300 text-green-700 hover:bg-green-200 hover:shadow-md`;
   };
 
@@ -308,7 +304,7 @@ function TimeSlot({ slot, appointment, isBooked, onBook, onCancel }: TimeSlotPro
   );
 }
 
-export default function Scheduler() {
+const Scheduler = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -362,13 +358,9 @@ export default function Scheduler() {
     loadAppointments();
   };
 
-  const formatDateForInput = (date: Date) => {
-    return date.toISOString().split('T')[0];
-  };
+  const formatDateForInput = (date: Date) => date.toISOString().split('T')[0];
 
-  const getAppointmentForSlot = (slot: string) => {
-    return appointments.find(apt => apt.start === slot);
-  };
+  const getAppointmentForSlot = (slot: string) => appointments.find(apt => apt.start === slot);
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -387,7 +379,6 @@ export default function Scheduler() {
           value={formatDateForInput(selectedDate)}
           onChange={(e) => {
             setSelectedDate(new Date(e.target.value));
-            // auto-close datepicker after selection
             e.target.blur();
           }}
           className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
@@ -472,4 +463,6 @@ export default function Scheduler() {
       )}
     </div>
   );
-}
+};
+
+export default Scheduler;

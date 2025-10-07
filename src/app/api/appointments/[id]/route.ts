@@ -6,9 +6,8 @@ import { findAppointment, removeAppointment, type Appointment } from '@/lib/stor
 const SLOT_MINUTES = parseInt(process.env.SLOT_MINUTES || '30');
 const appointmentIdSchema = z.string().uuid();
 
-function sendError(message: string, statusCode: number = 400) {
-  return NextResponse.json({ error: message, statusCode }, { status: statusCode });
-}
+const sendError = (message: string, statusCode: number = 400) => 
+  NextResponse.json({ error: message, statusCode }, { status: statusCode });
 
 export async function DELETE(
   request: NextRequest,

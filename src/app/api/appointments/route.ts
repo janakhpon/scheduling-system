@@ -18,13 +18,13 @@ const createAppointmentSchema = z.object({
   }, "invalid datetime format")
 });
 
-function isValidSlot(startDate: Date): boolean {
+const isValidSlot = (startDate: Date): boolean => {
   const hour = startDate.getHours();
   const minute = startDate.getMinutes();
   return hour >= START_HOUR && hour < END_HOUR && minute % SLOT_MINUTES === 0;
-}
+};
 
-function hasOverlap(startISO: string): boolean {
+const hasOverlap = (startISO: string): boolean => {
   const appointments = getAppointments();
   const startTime = parseISO(startISO);
   const endTime = addMinutes(startTime, SLOT_MINUTES);
@@ -34,11 +34,10 @@ function hasOverlap(startISO: string): boolean {
     const aEnd = parseISO(a.end);
     return Math.max(aStart.getTime(), startTime.getTime()) < Math.min(aEnd.getTime(), endTime.getTime());
   });
-}
+};
 
-function sendError(message: string, statusCode: number = 400) {
-  return NextResponse.json({ error: message, statusCode }, { status: statusCode });
-}
+const sendError = (message: string, statusCode: number = 400) => 
+  NextResponse.json({ error: message, statusCode }, { status: statusCode });
 
 export async function GET(request: NextRequest) {
   try {
@@ -60,7 +59,7 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(dayAppointments);
   } catch (error) {
-    console.error('GET appointments error:', error);
+    console.error('get error:', error);
     return sendError("server error", 500);
   }
 }
@@ -68,19 +67,14 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log('POST request body:', body);
     
     const validation = createAppointmentSchema.safeParse(body);
     if (!validation.success) {
-      console.log('Validation failed:', validation.error.errors);
       return sendError(`invalid data: ${validation.error.errors.map(e => e.message).join(', ')}`, 400);
     }
 
     const { name, email, start } = validation.data;
-    console.log('Parsed data:', { name, email, start });
-    
     const startDate = parseISO(start);
-    console.log('Parsed start date:', startDate);
 
     if (!isAfter(startDate, new Date())) return sendError("cannot book past", 400);
     if (!isValidSlot(startDate)) return sendError("invalid time slot", 400);
@@ -100,7 +94,7 @@ export async function POST(request: NextRequest) {
     addAppointment(newAppointment);
     return NextResponse.json(newAppointment, { status: 201 });
   } catch (error) {
-    console.error('POST appointments error:', error);
+    console.error('post error:', error);
     return sendError("server error", 500);
   }
 }
